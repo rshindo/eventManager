@@ -6,6 +6,7 @@
 package com.sample.eventmanager;
 
 import com.sample.eventmanager.resource.LoginResource;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 
 /**
@@ -13,9 +14,16 @@ import org.glassfish.jersey.server.ResourceConfig;
  * @author Shindo
  */
 public class TestResourceConfig extends ResourceConfig {
+    
+    public static class TestBinder extends AbstractBinder {
+        @Override
+        protected void configure() {
+            
+        }
+    }
 
     public TestResourceConfig() {
-        register(LoginResource.class);
+        register(new TestBinder()).register(LoginResource.class);
     }
     
 }
