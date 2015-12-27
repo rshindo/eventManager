@@ -5,61 +5,83 @@
  */
 package com.sample.eventmanager.resource;
 
-import com.sample.eventmanager.JerseyTestRule;
-import com.sample.eventmanager.TestResourceConfig;
-import java.io.IOException;
-import java.net.URI;
-import java.util.Collections;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.sample.eventmanager.UserSession;
+import com.sample.eventmanager.service.LoginService;
+import com.sample.eventmanager.service.mock.LoginServiceMock;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
-import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
-import org.glassfish.jersey.grizzly2.servlet.GrizzlyWebContainerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.servlet.ServletContainer;
 import org.glassfish.jersey.test.DeploymentContext;
 import org.glassfish.jersey.test.JerseyTest;
+import org.glassfish.jersey.test.ServletDeploymentContext;
 import org.glassfish.jersey.test.grizzly.GrizzlyWebTestContainerFactory;
-import org.glassfish.jersey.test.spi.TestContainer;
 import org.glassfish.jersey.test.spi.TestContainerException;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.junit.Rule;
 
 /**
  *
  * @author Shindo
  */
-public class LoginResourceTest {
+public class LoginResourceTest extends JerseyTest {
     
-    @Rule
-    public JerseyTestRule rule = new JerseyTestRule(new TestResourceConfig());
+    
+    public static class TestBinder extends AbstractBinder {
+        @Override
+        protected void configure() {
+            bind(LoginServiceMock.class).to(LoginService.class);
+            bind(UserSession.class).to(UserSession.class);
+        }
+    }
+
+    @Override
+    protected Application configure() {
+        return new ResourceConfig().register(new TestBinder())
+                .register(LoginResource.class);
+    }
+
+    @Override
+    protected TestContainerFactory getTestContainerFactory() throws TestContainerException {
+        return new GrizzlyWebTestContainerFactory();
+    }
+
+    @Override
+    protected DeploymentContext configureDeployment() {
+        ResourceConfig config = new ResourceConfig(LoginResource.class);
+        config.register(UserSession.class);
+        config.register(new TestBinder());
+        return ServletDeploymentContext.forServlet(new ServletContainer(config)).build();
+    }
     
     @Test
     public void testLogin() {
         System.out.println("login");
         String expected = "ok";
-//        LoginForm loginForm = new LoginForm(null, "userId", "password");
-//        MultivaluedHashMap param = new MultivaluedHashMap();
-//        param.add("userId", "userId");
-//        param.add("password", "password");
         Form form = new Form();
-        form.param("userId", "userId");
+        form.param("userId", "user001");
         form.param("password", "password");
-        String actual = rule.getJerseyTest()
-                .target("login")
+        String actual = target("login")
                 .request()
                 .accept(MediaType.APPLICATION_JSON)
                 .post(Entity.form(form), String.class);
         assertTrue(actual.contains(expected));
+    }
+    
+    @Test
+    public void testSession() {
+        UserSession session = target("login")
+                .path("session")
+                .request()
+                .accept(MediaType.APPLICATION_JSON)
+                .get(UserSession.class);
+        System.out.println(String.format(
+                "user_id=%s, name=%s", 
+                session.getUserId(), session.getName()));
     }
     
 }
