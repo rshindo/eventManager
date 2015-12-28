@@ -6,12 +6,15 @@
 package com.sample.eventmanager.resource;
 
 import com.sample.eventmanager.UserSession;
+import com.sample.eventmanager.dto.LoginDto;
 import com.sample.eventmanager.service.LoginService;
-import com.sample.eventmanager.service.mock.LoginServiceMock;
+import java.util.HashSet;
+import java.util.Set;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
+import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
@@ -23,6 +26,7 @@ import org.glassfish.jersey.test.spi.TestContainerException;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.mockito.Mockito;
 
 /**
  *
@@ -30,11 +34,33 @@ import static org.junit.Assert.*;
  */
 public class LoginResourceTest extends JerseyTest {
     
+    public static class MockLoginServiceFactory implements Factory<LoginService> {
+
+        @Override
+        public LoginService provide() {
+            LoginService loginServiceMock = Mockito.mock(LoginService.class);
+            Mockito.when(loginServiceMock.authorize(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
+            LoginDto dto = new LoginDto();
+            dto.setUserId("user001");
+            dto.setName("Shindo");
+            dto.setEmployeeNumber("128");
+            Set<String> permissions = new HashSet<>();
+            permissions.add("event_r");
+            dto.setPermissions(permissions);
+            Mockito.when(loginServiceMock.getUserInfo("user001")).thenReturn(dto);
+            return loginServiceMock;
+        }
+
+        @Override
+        public void dispose(LoginService instance) {
+        }
+        
+    }
     
     public static class TestBinder extends AbstractBinder {
         @Override
         protected void configure() {
-            bind(LoginServiceMock.class).to(LoginService.class);
+            bindFactory(new MockLoginServiceFactory()).to(LoginService.class);
             bind(UserSession.class).to(UserSession.class);
         }
     }

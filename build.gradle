@@ -84,6 +84,9 @@ dependencies {
 
     testCompile 'org.glassfish:jsonp-jaxrs:1.0'
     
+    // Mockito
+    testCompile 'org.mockito:mockito-all:1.10.19'
+    
     // HK2
     compile 'org.glassfish.hk2:hk2-api:2.3.0'
     
