@@ -98,16 +98,4 @@ public class LoginResourceTest extends JerseyTest {
         assertTrue(actual.contains(expected));
     }
     
-    @Test
-    public void testSession() {
-        UserSession session = target("login")
-                .path("session")
-                .request()
-                .accept(MediaType.APPLICATION_JSON)
-                .get(UserSession.class);
-        System.out.println(String.format(
-                "user_id=%s, name=%s", 
-                session.getUserId(), session.getName()));
-    }
-    
 }

@@ -8,11 +8,13 @@ package com.sample.eventmanager.service.impl;
 
 import com.sample.eventmanager.dto.LoginDto;
 import com.sample.eventmanager.service.LoginService;
+import javax.enterprise.context.Dependent;
 
 /**
  * 
  * @author Ryo Shindo
  */
+@Dependent
 public class LoginServiceImpl implements LoginService{
 
     @Override
