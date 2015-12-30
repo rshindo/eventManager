@@ -47,8 +47,8 @@ public class LoginResource {
         
         if(!loginService.authorize(loginForm.getUserId(), loginForm.getPassword())) {
             loginForm.setMessage(Arrays.asList("ng"));
-            return Response.ok(Response.Status.UNAUTHORIZED)
-                    .entity(loginForm)
+            return Response.ok(loginForm)
+                    .status(Response.Status.UNAUTHORIZED)
                     .build();
         }
         
