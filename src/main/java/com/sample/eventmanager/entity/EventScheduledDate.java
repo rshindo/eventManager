@@ -40,6 +40,8 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "EventScheduledDate.findByScheduledEndDate", query = "SELECT e FROM EventScheduledDate e WHERE e.scheduledEndDate = :scheduledEndDate"),
     @NamedQuery(name = "EventScheduledDate.findByNotDispTime", query = "SELECT e FROM EventScheduledDate e WHERE e.notDispTime = :notDispTime")})
 public class EventScheduledDate implements Serializable {
+    @Column(name = "is_fixed")
+    private Boolean isFixed;
     private static final long serialVersionUID = 1L;
     @EmbeddedId
     protected EventScheduledDatePK eventScheduledDatePK;
@@ -147,6 +149,14 @@ public class EventScheduledDate implements Serializable {
     @Override
     public String toString() {
         return "entity.EventScheduledDate[ eventScheduledDatePK=" + eventScheduledDatePK + " ]";
+    }
+
+    public Boolean getIsFixed() {
+        return isFixed;
+    }
+
+    public void setIsFixed(Boolean isFixed) {
+        this.isFixed = isFixed;
     }
     
 }
